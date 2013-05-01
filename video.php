@@ -28,14 +28,15 @@ while($row = mysql_fetch_assoc($result))
 	$db = apri_connessione();
 	
 	$query_views_insert = "INSERT INTO `avideo`.`av_views` (
-				`video_ID` ,
-				`timestamp_insert` ,
-				`user_ID`
-				)
-				VALUES (
-				'".$_GET['id']."', '".time()."', '0'
-				);
-	";
+						`video_ID` ,
+						`date`,
+						`slot` ,
+						`cnt`
+						)
+						VALUES (
+						'".$_GET['id']."', CURDATE(), RAND() * 100, 1
+						) ON DUPLICATE KEY UPDATE cnt = cnt + 1;
+				";
 			
 	if (!$result_views_insert = mysql_query($query_views_insert, $db)) {
 		echo mysql_error()."<br />";
@@ -50,10 +51,11 @@ while($row = mysql_fetch_assoc($result))
 	
 	$row = mysql_fetch_array($result);
 	
-	$query_views = "SELECT * FROM ".$_CONFIG["table_suffix"]."views WHERE video_ID=".$_GET['id']; 
-	$result_views = mysql_query($query_views, $db);
+	$query_views_select = "SELECT COUNT(*) AS count FROM ".$_CONFIG["table_suffix"]."views WHERE video_ID=".$_GET['id']; 
+	$result_views_select = mysql_query($query_views_select, $db);
+	$row_views_select = mysql_fetch_array($result_views_select);
 	
-	$views = mysql_num_rows($result_views);
+	$views = $row_views_select['count'];
 	
 	switch ($row['host']) {
 		case '1': $host = "http://www.youtube.com/watch?v=";

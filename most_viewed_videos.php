@@ -1,5 +1,13 @@
 <?php
 	include("includes/funzioni.php");
+	
+	/* Settings */
+	// Results layout
+	$display_cols = 3;
+	$display_rows = 4;
+	$display_results = $display_cols * $display_rows;
+	
+	/* Settings EoF */
 ?>
 
 <!DOCTYPE html>
@@ -7,7 +15,7 @@
 <head>
     <title>Home page - Avideo</title>
     <!-- inizio META TAG -->
-<meta name="keywords" content="" />
+	<meta name="keywords" content="" />
 	<meta name="description" content="" />
 	<meta name="author" content="Andrea CANNUNI" />
 	<meta name="robots" content="index, follow" />
@@ -20,18 +28,18 @@
     <link rel="stylesheet" type="text/css" media="screen" href="css/style.css">
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/superfish.js"></script>
-	 <script type="text/javascript" src="js/jquery.responsivemenu.js"></script>
-   <script type="text/javascript" src="js/jquery.mobilemenu.js"></script>
-   <script type="text/javascript" src="http://fast.fonts.com/jsapi/86ac751a-e730-4d0e-a4ec-3e10d0169fa5.js"></script>
-   <script type="text/javascript" src="js/web_fonts_banner_remover.js"></script>
-	 <script src="js/script.js"></script>
+	<script type="text/javascript" src="js/jquery.responsivemenu.js"></script>
+	<script type="text/javascript" src="js/jquery.mobilemenu.js"></script>
+	<script type="text/javascript" src="http://fast.fonts.com/jsapi/86ac751a-e730-4d0e-a4ec-3e10d0169fa5.js"></script>
+	<script type="text/javascript" src="js/web_fonts_banner_remover.js"></script>
+	<script src="js/script.js"></script>
 	<!--[if lt IE 8]>
-   <div style=' clear: both; text-align:center; position: relative;'>
-     <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
-       <img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." />
-    </a>
-  </div>
-<![endif]-->
+	<div style=' clear: both; text-align:center; position: relative;'>
+		<a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+			<img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0000_us.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." />
+		</a>
+	</div>
+	<![endif]-->
     <!--[if lt IE 9]>
    	<script type="text/javascript" src="js/html5.js"></script>
     	<link rel="stylesheet" type="text/css" media="screen" href="css/ie.css">
@@ -89,50 +97,19 @@
 <?php
 	if (isset($_GET['period'])) {
 		switch($_GET['period']) {
-			case 'today': $query_views_period = " WHERE timestamp_insert >= ".strtotime("Today");
+			case 'today': $query_video_select = "SELECT ID, title, thumbnail_default, views FROM ".$_CONFIG["table_suffix"]."videos ORDER BY daily_views DESC LIMIT ".$display_results.";"; 
 			break;
-			case 'week': $query_views_period = " WHERE timestamp_insert >= ".strtotime("This Monday");
+			case 'week': $query_video_select = "SELECT ID, title, thumbnail_default, views FROM ".$_CONFIG["table_suffix"]."videos ORDER BY weekly_views DESC LIMIT ".$display_results.";"; 
 			break;
-			case 'month': $query_views_period = " WHERE timestamp_insert >= ".strtotime("First day of this month");
+			case 'month': $query_video_select = "SELECT ID, title, thumbnail_default, views FROM ".$_CONFIG["table_suffix"]."videos ORDER BY monthly_views DESC LIMIT ".$display_results.";"; 
 			break;
+			default: $query_video_select = "SELECT ID, title, thumbnail_default, views FROM ".$_CONFIG["table_suffix"]."videos ORDER BY views DESC LIMIT ".$display_results.";";
 		}
 	} else $query_views_period = "";
 
 	$db = apri_connessione();
-	
-	/* Sort views */
-	$query_video_select = "SELECT * FROM ".$_CONFIG["table_suffix"]."videos"; 
+
 	$result_video_select = mysql_query($query_video_select, $db);
-	while($row_video_select = mysql_fetch_array($result_video_select)){
-		$videos_sort[$row_video_select['ID']]['views'] = 0;
-		$videos[$row_video_select['ID']]['ID'] = $row_video_select['ID'];
-		$videos[$row_video_select['ID']]['host'] = $row_video_select['host'];
-		$videos[$row_video_select['ID']]['host_video_ID'] = $row_video_select['host_video_ID'];
-		$videos[$row_video_select['ID']]['title'] = $row_video_select['title'];
-		$videos[$row_video_select['ID']]['description'] = $row_video_select['description'];
-		$videos[$row_video_select['ID']]['thumbnail_default'] = $row_video_select['thumbnail_default'];
-		$videos[$row_video_select['ID']]['thumbnail_medium'] = $row_video_select['thumbnail_medium'];
-		$videos[$row_video_select['ID']]['thumbnail_high'] = $row_video_select['thumbnail_high'];
-		$videos[$row_video_select['ID']]['user_ID'] = $row_video_select['user_ID'];
-		$videos[$row_video_select['ID']]['timestamp_insert'] = $row_video_select['timestamp_insert'];
-		$videos[$row_video_select['ID']]['timestamp_edit'] = $row_video_select['timestamp_edit'];
-	}
-	
-	$query_views_select = "SELECT * FROM ".$_CONFIG["table_suffix"]."views".$query_views_period; 
-	$result_views_select = mysql_query($query_views_select, $db);
-	while($row_views_select = mysql_fetch_array($result_views_select)){
-		$videos_sort[$row_views_select['video_ID']]['views']++;
-	}
-	arsort($videos_sort);
-	
-	$videos_count = 0;
-	foreach($videos_sort as $videos_sort_key => $videos_sort_values)
-    {
-    	$videos_sorted[$videos_count]['ID'] = $videos_sort_key;
-    	$videos_sorted[$videos_count]['views'] = $videos_sort[$videos_sort_key]['views'];
-    	$videos[$videos_sort_key]['views'] = $videos_sort[$videos_sort_key]['views'];
-    	$videos_count++;
-    }
     
     // echo '<pre>';
 	// echo print_r($videos_sorted);
@@ -140,8 +117,10 @@
 	/* Sort views EoF */
 	
 	$videos_sorted_count = 0;
-	for($i=0;$i<3;$i++) {
-		for($j=0;$j<4;$j++) {
+	for($i=0;$i<$display_cols;$i++) {
+		for($j=0;$j<$display_rows;$j++) {
+			$row_video_select = mysql_fetch_array($result_video_select);
+			
 			if ($j == 0) {
 ?>
           <div class="wrapper">
@@ -157,18 +136,18 @@
 <?php 
 			}
 			if ($j == 0) $col_indicator = " alpha";
-			else if ($j == 3) $col_indicator = " omega last-col";
+			else if ($j == $display_cols) $col_indicator = " omega last-col";
 			else $col_indicator = "";
 ?>
                 <div class="grid_3<?php echo $col_indicator ?>">
                   <div class="division">
-                  	<p><strong><a href="video.php?id=<?php echo $videos[$videos_sorted[$videos_sorted_count]['ID']]['ID'] ?>"><?php echo $videos[$videos_sorted[$videos_sorted_count]['ID']]['title'] ?></a></strong></p>
-                    <a href="video.php?id=<?php echo $videos[$videos_sorted[$videos_sorted_count]['ID']]['ID'] ?>"><img src="<?php echo $videos[$videos_sorted[$videos_sorted_count]['ID']]['thumbnail_default'] ?>" alt="<?php echo $videos[$videos_sorted[$videos_sorted_count]['ID']]['title'] ?>" width="220" height="153" /></a>
-                    Views: <?php echo $videos[$videos_sorted[$videos_sorted_count]['ID']]['views'] ?>
+                  	<p><strong><a href="video.php?id=<?php echo $row_video_select['ID'] ?>"><?php echo $row_video_select['title'] ?></a></strong></p>
+                    <a href="video.php?id=<?php echo $row_video_select['ID'] ?>"><img src="<?php echo $row_video_select['thumbnail_default'] ?>" alt="<?php echo $row_video_select['title'] ?>" width="220" height="153" /></a>
+                    Views: <?php echo $row_video_select['views'] ?>
                   </div>
                 </div>
 <?php 
-			if ($j == 3) {
+			if ($j == $display_cols) {
 ?>
               </div>
             </article>

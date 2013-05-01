@@ -1,18 +1,9 @@
+#!C:\xampp\php\php.exe -q
+
 <?php
 	include("includes/funzioni.php");
-?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<title>Random views insert</title>
-	</head>
-	<body>
-		<h1>Random votes/comments insert</h1>
-
-<?php
- 	if (isset($_GET['comments'])) {		
+ 	if (isset($_SERVER["argv"][1])) {		
 		$num_users = 5;
 		
 		$db = apri_connessione();
@@ -35,7 +26,7 @@
 		
 		
 		$comments_count = 0;
-		for ($i=0; $i<$_GET['comments']; $i++) {
+		for ($i=0; $i<$_SERVER["argv"][1]; $i++) {
 			$random_timestamp = rand(strtotime('Last Month'), time());
 			$random_quote_ID = rand(1, $num_quotes);
 			
@@ -48,7 +39,7 @@
 					`user_ID`
 					)
 					VALUES (
-					'".rand(1, $num_videos)."', '".rand(1, 5)."', '".mysql_real_escape_string($quotes[$random_quote_ID])."', '".$random_timestamp."', '".$random_timestamp."', ".rand(1, $num_users)."
+					'".rand(1, $num_videos)."', '".rand(1, 5)."', '".mysql_real_escape_string($quotes[$random_quote_ID])."', FROM_UNIXTIME(".$random_timestamp."), FROM_UNIXTIME(".$random_timestamp."), ".rand(1, $num_users)."
 					);
 			";
 					
@@ -62,8 +53,5 @@
 		}
 		echo $comments_count." voti/commenti casuali inserite correttamente nel DB.";
 		mysql_close();
-	} else echo "Hai provato ad usare il paramentro 'comments' nella query?";
+	} else echo "Hai provato ad usare il numero di commenti come argomento?";
 ?>
-
-	</body>
-</html>
