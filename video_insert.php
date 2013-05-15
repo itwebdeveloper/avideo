@@ -25,7 +25,7 @@
 				`timestamp_edit`
 				)
 				VALUES (
-				'".$_POST['host']."', '".$_POST['host_video_ID_'.$i]."', '".mysql_real_escape_string($_POST['title_'.$i])."', '".mysql_real_escape_string($_POST['description_'.$i])."', '".$_POST['thumbnail_default_'.$i]."', '".$_POST['thumbnail_medium_'.$i]."', '".$_POST['thumbnail_high_'.$i]."', '".$current_timestamp."', '".$current_timestamp."'
+				'".$_POST['host']."', '".$_POST['host_video_ID_'.$i]."', '".mysql_real_escape_string($_POST['title_'.$i])."', '".mysql_real_escape_string($_POST['description_'.$i])."', '".$_POST['thumbnail_default_'.$i]."', '".$_POST['thumbnail_medium_'.$i]."', '".$_POST['thumbnail_high_'.$i]."', NOW(), NOW()
 				);
 			";
 			
